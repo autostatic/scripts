@@ -15,7 +15,7 @@ then
   killall dbus-launch &> /dev/null
   sudo mount -o remount,size=128M /dev/shm
   echo -n performance | sudo tee /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor &> /dev/null
-  jackd -P84 -p32 -t2000 -d alsa -dhw:$(cat /proc/asound/card0/id) -p 128 -n 3 -r 48000 -s -X seq &> /dev/null &
+  jackd -P84 -p32 -t2000 -d alsa -dhw:Device -p 128 -n 3 -r 48000 -s -X seq &> /dev/null &
 fi
 
 jack_wait -w &> /dev/null
