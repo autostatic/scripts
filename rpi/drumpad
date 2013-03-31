@@ -1,0 +1,38 @@
+#/bin/bash
+
+if ! pidof jackd &> /dev/null
+then
+  sudo killall ifplugd &> /dev/null
+  sudo killall dhclient-bin &> /dev/null
+  sudo service ntp stop &> /dev/null
+  sudo service triggerhappy stop &> /dev/null
+  sudo service ifplugd stop &> /dev/null
+  sudo service dbus stop &> /dev/null
+  sudo killall console-kit-daemon &> /dev/null
+  sudo killall polkitd &> /dev/null
+  killall gvfsd &> /dev/null
+  killall dbus-daemon &> /dev/null
+  killall dbus-launch &> /dev/null
+  sudo mount -o remount,size=128M /dev/shm
+  echo -n performance | sudo tee /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor &> /dev/null
+  jackd -P84 -p32 -t2000 -d alsa -dhw:$(cat /proc/asound/card0/id) -p 128 -n 3 -r 48000 -s -X seq &> /dev/null &
+fi
+
+jack_wait -w &> /dev/null
+
+if ! pidof jalv &> /dev/null
+then
+  jalv -l /home/pi/drumkv1/drumpad.jalv.state http://drumkv1.sourceforge.net/lv2 &> /dev/null &
+fi
+
+until jack_lsp | grep drumkv1 &> /dev/null
+do
+  sleep 1
+done
+
+sleep 10
+
+jack_bufsize 128
+aj-snapshot -q -r /home/pi/drumkv1/drumkv1.snap
+
+exit
