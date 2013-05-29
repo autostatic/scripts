@@ -1,1 +1,0 @@
-pbuilder-dist wheezy armhf create --mirror http://archive.raspbian.org/raspbian --debootstrapopts --keyring=/home/jeremy/rpi/etc/apt/trusted.gpg
