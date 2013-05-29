@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# What this script does:
+# * launches jack-dssi-host with the amsynth DSSI plugin
+# * waits for the jack-dssi-host JACK ports to become available
+# * launches multimidicast to start receiving MIDI messages over multicast UDP.
+#   On the other end you can then control amsynth with an app like TouchDAW.
+#   TouchDAW needs to be set up to send via multicast UDP.
+# * waits for multicast JACK ports to become available
+# * makes the necessary connections
+
+jack-dssi-host -n /usr/lib/dssi/amsynth_dssi.so &> /dev/null &
+
+until jack_lsp | grep amsynth &> /dev/null
+do
+  sleep 1
+done
+
+multimidicast -q &> /dev/null &
+
+until aconnect -i | grep multimidicast &> /dev/null
+do
+  sleep 1
+done
+
+aconnect multimidicast:2 "amsynth DSSI plugin"
+
+exit
