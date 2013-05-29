@@ -1,28 +1,32 @@
 #!/bin/bash
 
 # What this script does:
-# * launches jack-dssi-host with the amsynth DSSI plugin
-# * waits for the jack-dssi-host JACK ports to become available
+# * launches a2jmidid to export all available alsa sequencer ports
+# * launches jalv with the amsynth LV2 plugin
+# * waits for the jalv JACK ports to become available
 # * launches multimidicast to start receiving MIDI messages over multicast UDP.
 #   On the other end you can then control amsynth with an app like TouchDAW.
 #   TouchDAW needs to be set up to send via multicast UDP.
-# * waits for multicast JACK ports to become available
+# * waits for multicast JACK ports (exported via a2jmidid) to become available
 # * makes the necessary connections
 
-jack-dssi-host -n /usr/lib/dssi/amsynth_dssi.so &> /dev/null &
+a2jmidid -eu &
+jalv http://code.google.com/p/amsynth/amsynth &
 
 until jack_lsp | grep amsynth &> /dev/null
 do
   sleep 1
 done
 
-multimidicast -q &> /dev/null &
+multimidicast -q &
 
-until aconnect -i | grep multimidicast &> /dev/null
+until jack_lsp | grep multimidicast &> /dev/null
 do
   sleep 1
 done
 
-aconnect multimidicast:2 "amsynth DSSI plugin"
+jack_connect amsynth:out_l system:playback_1
+jack_connect amsynth:out_r system:playback_2
+jack_connect "a2j:multimidicast (capture): Port 03" amsynth:midi
 
 exit
