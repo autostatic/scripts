@@ -3,7 +3,7 @@
 # Script to disable screen blanking on the RPi
 #
 # You might also want to uncomment the line
-# @@xscreensaver -no-splash
+# @xscreensaver -no-splash
 # in /etc/xdg/lxsession/LXDE/autostart
 # and set BLANK_TIME and POWERDOWN_TIME to 0
 # in /etc/kbd/config
