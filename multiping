@@ -1,0 +1,26 @@
+#!/bin/bash
+CURR=1
+SUBNET="$1"
+FILE=multiping.log
+
+touch $FILE
+
+function multiping() {
+ping -c1 -t1 $SUBNET.$CURR 2>&1 >/dev/null
+if [ "$?" -eq "0" ]; then
+echo $(arp $SUBNET.$CURR) >> $FILE
+fi
+}
+
+while [ $CURR -lt 255 ] ; do
+multiping &
+let CURR=$CURR+1
+let MOD=$CURR%100
+#this code is to prevent the saturation of the executable connections
+if [[ $MOD -eq 0 ]]; then
+wait
+fi
+done
+wait
+cat $FILE
+rm $FILE
