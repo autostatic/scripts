@@ -48,4 +48,4 @@ sleep 3.5
 jack_disconnect Sequencer:out LinuxSampler:midi_in_0
 killall jack_midiseq
 
-exit
+exit 0
