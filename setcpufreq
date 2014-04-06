@@ -1,0 +1,51 @@
+#!/bin/bash
+
+numproc=$(($(nproc) - 1))
+param=$1
+
+function gov_status() {
+for ((num=0; num <= numproc ; num++))
+do
+  cat /sys/devices/system/cpu/cpu${num}/cpufreq/scaling_governor
+done
+}
+
+function gov_set() {
+declare -A govs
+govs=([conservative]=1 [ondemand]=1 [userspace]=1 [powersave]=1 [performance]=1)
+if [ ${govs[$param]} ]
+then
+  echo $param
+  for ((num=0; num <= numproc ; num++))
+  do
+    echo -n $param | sudo tee /sys/devices/system/cpu/cpu${num}/cpufreq/scaling_governor
+  done
+else
+  echo "Unknown option"
+  exit 1
+fi
+}
+
+case "$1" in
+  "" | "help" )
+    echo "cpufreq, a script to set CPU scaling governors
+
+Usage - cpufreq [command]
+
+Options:
+status          Check current governor setting
+conservative    Set governors to conservative
+ondemand        Set governors to ondemand
+userspace       Set governors to userspace
+powersave       Set governors to powersave
+performance     Set governors to performance
+help            Show this help text."
+    exit 1
+      ;;
+  "status" )
+    gov_status
+      ;;
+  * )
+    gov_set
+      ;;    
+esac
