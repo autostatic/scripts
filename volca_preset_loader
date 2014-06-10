@@ -1,0 +1,89 @@
+#!/bin/bash
+
+presetdir=$HOME/Presets/volcakeys
+
+[ ! -c /dev/snd/by-path/platform-snd_virmidi.* ] && echo "snd-virmidi module not loaded!" && exit
+
+function load_preset() {
+  echo "Sending $preset"
+  aconnect 'Virtual Raw MIDI 10-0' BCR2000
+  aconnect 'Virtual Raw MIDI 10-0' 'Babyface (23596862)'
+  amidi -p hw:10,0 -s $presetdir/$preset.syx && echo "Preset loaded successfully!"
+  sleep 1
+  aconnect -d 'Virtual Raw MIDI 10-0' BCR2000 &> /dev/null
+  aconnect -d 'Virtual Raw MIDI 10-0' 'Babyface (23596862)' &> /dev/null
+}
+
+function store_preset() {
+  [ -f $presetdir/$preset.syx ] && read -s -n1 -p "Preset already exists, overwrite? [y/N] " && echo
+  if [ ! -f $presetdir/$preset.syx ] || [ "$REPLY" = "y" ]
+  then
+    echo "Storing $preset"
+    aconnect BCR2000 'Virtual Raw MIDI 10-0'
+    amidi -t 10 -p hw:10,0 -r $presetdir/$preset.syx &
+    amidi_pid=$!
+    echo "Press EDIT + << PRESET"
+    for  ((i=1; i <= 11 ; i++))
+    do
+      echo -n "."
+      sleep 1
+    done
+    echo
+    aconnect -d BCR2000 'Virtual Raw MIDI 10-0' &> /dev/null
+    if ps -p $amidi_pid &> /dev/null
+    then
+      kill $amidi_pid
+      echo "Preset saved succesfully!"
+    else
+      echo "No data received, try again"
+      rm $presetdir/$preset.syx
+    fi
+  else
+    echo "Exiting"
+    exit 1
+  fi
+}
+  
+function list_presets() {
+  echo "Currently available presets:"
+  for i in $(find $presetdir -name "*.syx")
+  do
+    echo -n "  " && basename $i .syx
+  done
+}
+
+function show_help() {
+  echo "Usage: ${0##*/} [-l | --list] [-p | --preset] [-s | --store] [file]"
+  echo
+  echo "  -h, --help		display this help and exit"
+  echo "  -l, --load		load preset, if no preset name is given the available presets will be shown"
+  echo "  -s, --save		save preset"
+}
+
+[ -z $1 ] && show_help
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -h|--help)
+              show_help
+              exit
+              ;;
+    -l|--load)
+              preset="$2"
+              shift
+              [ -z $preset ] && list_presets && exit
+              [ ! -f $presetdir/$preset.syx ] && echo "Preset can't be found!" && exit
+              load_preset
+              ;;
+    -s|--store)
+              preset="$2"
+              shift
+              store_preset
+              ;;
+    *)
+              show_help
+              exit
+              ;;
+ esac
+ shift
+done
