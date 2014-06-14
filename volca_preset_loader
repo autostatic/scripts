@@ -53,7 +53,7 @@ function list_presets() {
 }
 
 function show_help() {
-  echo "Usage: ${0##*/} [-l | --list] [-p | --preset] [-s | --store] [file]"
+  echo "Usage: ${0##*/} [-h | --help] [-l | --list] [-s | --save] [file]"
   echo
   echo "  -h, --help		display this help and exit"
   echo "  -l, --load		load preset, if no preset name is given the available presets will be shown"
