@@ -1,4 +1,11 @@
 #!/bin/bash
+#
+# volca_preset_loader
+# Script to save and load presets
+# for the Korg Volca Keys
+#
+# Author: Jeremy Jongepier
+# License: Public Domain
 
 presetdir=$HOME/Presets/volcakeys
 
