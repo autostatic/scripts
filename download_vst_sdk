@@ -13,7 +13,7 @@ curl -s -c $sdk_cookie \
   -d user=$sdk_user \
   -d pass=$sdk_pass \
   -d logintype=login \
-  -L $sdk_dev.html
+  -L $sdk_dev.html > /dev/null 2>&1
 
 sdk_download_url=$(curl -s -b $sdk_cookie \
   -A "$user_agent" \
