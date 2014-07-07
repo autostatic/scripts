@@ -8,7 +8,7 @@ user_agent="Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:30.0) Gecko/20100101 Fire
 
 [ -f $sdk_cookie ] && rm -f $sdk_cookie
 
-curl -v -c $sdk_cookie \
+curl -c $sdk_cookie \
   -A "$user_agent" \
   -d user=$sdk_user \
   -d pass=$sdk_pass \
