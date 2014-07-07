@@ -30,4 +30,4 @@ curl -s -b $sdk_cookie \
   -C - \
   -O -J -L http://www.steinberg.net/$sdk_download_url
 
-unzip -j -o $sdk_zip "*aeffect*" -d $HOME/tmp/vst
+unzip -j -o $sdk_zip "*aeffect*" -d $HOME/tmp/vst > /dev/null 2>&1
