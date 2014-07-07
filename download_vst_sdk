@@ -1,0 +1,37 @@
+#!/bin/bash
+
+sdk_user=autostatic@gmx.net
+sdk_pass=UvbQPzKu4A3n4DbX
+sdk_dev=http://www.steinberg.net/nc/en/company/developers/sdk_download_portal
+sdk_cookie=/tmp/steinberg-cookie
+user_agent="Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:30.0) Gecko/20100101 Firefox/30.0"
+
+[ -f $sdk_cookie ] && rm -f $sdk_cookie
+
+curl -v -c $sdk_cookie \
+  -A "$user_agent" \
+  -d user=$sdk_user \
+  -d pass=$sdk_pass \
+  -d logintype=login \
+  -L $sdk_dev.html
+
+sdk_download_url=$(curl -b $sdk_cookie \
+  -A "$user_agent" \
+  -d vst_status=0 \
+  -d sdk_daten_speichern="Download+VST+SDK+now" \
+  -L $sdk_dev/vst_360_audio_plug_ins_sdk.html \
+  | grep vstsdk | cut -d '"' -f 2 | sed 's/\&amp;/\&/g')
+
+echo "Download URL: $sdk_download_url"
+
+sdk_zip=${sdk_download_url#*downloads/}
+sdk_zip=${sdk_zip%.zip*}.zip
+
+echo "ZIP: $sdk_zip"
+
+curl -b $sdk_cookie \
+  -A "$user_agent" \
+  -C - \
+  -O -J -L http://www.steinberg.net/$sdk_download_url
+
+unzip -j $sdk_zip "*aeffect*" -d $HOME/tmp/vst
