@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -x
+
+search_term=$1
+search_term_plus=`echo $search_term | tr ' ' '+'`
+
+curl -s "http://www.marktplaats.nl/z.html?query=$search_term_plus&categoryId=0" | grep "data-url" | grep -i "$search_term" | awk 'BEGIN { FS = "\"" } ; { print $2 }'
