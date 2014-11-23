@@ -2,7 +2,8 @@
 
 set -x
 
-search_term=$1
-search_term_plus=`echo $search_term | tr ' ' '+'`
-
-curl -s "http://www.marktplaats.nl/z.html?query=$search_term_plus&categoryId=0" | grep "data-url" | grep -i "$search_term" | awk 'BEGIN { FS = "\"" } ; { print $2 }'
+for search_term in "$@"
+do
+	search_term_plus=`echo "$search_term" | tr ' ' '+'`
+	search_url=`curl -s http://www.marktplaats.nl/z.html?query="$search_term_plus" | grep "thumb-placeholder-centered juiceless-link" | awk 'BEGIN { FS = "\"" } ; { printf $6": " } ; { print $2 }'`
+done
