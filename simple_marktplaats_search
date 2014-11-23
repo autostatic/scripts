@@ -1,11 +1,14 @@
 #!/bin/bash
 
+#set -x
+
 for search_term in "$@"
 do
+	search_term_plus=`echo "$search_term" | tr ' ' '+'`
+	search_term_underscore=`echo "$search_term" | tr ' ' '_'`
+	search_results=`curl -s http://www.marktplaats.nl/z.html?query="$search_term_plus" | grep "thumb-placeholder-centered juiceless-link" | grep "data-url" | awk 'BEGIN { FS = "\"" } ; { printf $6": " } ; { print $2 }'`
 	echo De volgende resultaten zijn gevonden voor de zoekterm _"$search_term"_:
 	echo ---
-	search_term_plus=`echo "$search_term" | tr ' ' '+'`
-	search_url=`curl -s http://www.marktplaats.nl/z.html?query="$search_term_plus" | grep "thumb-placeholder-centered juiceless-link" | grep "data-url" | awk 'BEGIN { FS = "\"" } ; { printf $6": " } ; { print $2 }'`
-	echo -e "$search_url"\n
+	echo "$search_results"
 	echo
 done
