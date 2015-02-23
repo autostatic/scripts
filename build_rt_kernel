@@ -1,0 +1,37 @@
+#!/bin/bash
+
+set -ex
+
+kernel_version=$1
+rt_patch=`curl -s -D - https://www.kernel.org/pub/linux/kernel/projects/rt/$kernel_version/ | grep patch.xz | cut -d '"' -f2`
+rt_version=`echo $rt_patch | cut -d '-' -f3 | cut -d '.' -f1`
+kernel_rt_version=`echo $rt_patch | cut -d '-' -f2`
+
+[ -d linux-"$kernel_rt_version" ] && read -s -n1 -p "Directory linux-${kernel_rt_version} already exists. Overwrite? [y/N] "
+[ "$REPLY" = "N" ] && exit 0
+
+rm -rf linux-$kernel_rt_version
+
+curl -# -O -C - https://www.kernel.org/pub/linux/kernel/v3.x/linux-$kernel_rt_version.tar.xz
+curl -# -O -C - https://www.kernel.org/pub/linux/kernel/projects/rt/$kernel_version/patch-$kernel_rt_version-$rt_version.patch.xz
+
+tar xvf linux-$kernel_rt_version.tar.xz
+cd linux-$kernel_rt_version
+
+if xzcat ../$rt_patch | patch --dry-run -p1
+then
+  xzcat ../$rt_patch | patch -p1
+else
+  exit
+fi
+
+cp `ls -t ../config-$kernel_version.* | head -n1` ./.config
+
+make oldconfig
+
+#make-kpkg clean
+#CONCURRENCY_LEVEL=`nproc` LOCALVERSION= fakeroot make-kpkg --initrd --revision 0 kernel_image kernel_headers
+
+scripts/config --disable DEBUG_INFO
+
+make -j`nproc` LOCALVERSION="-core2" deb-pkg
