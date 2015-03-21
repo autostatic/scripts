@@ -1,7 +1,7 @@
 #!/bin/bash
 
-sdk_user=autostatic@gmx.net
-sdk_pass=UvbQPzKu4A3n4DbX
+sdk_user=someuser
+sdk_pass=somepassword
 sdk_dev=http://www.steinberg.net/nc/en/company/developers/sdk_download_portal
 sdk_cookie=/tmp/steinberg-cookie
 user_agent="Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:30.0) Gecko/20100101 Firefox/30.0"
