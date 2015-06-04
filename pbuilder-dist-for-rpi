@@ -1,1 +1,6 @@
-pbuilder-dist wheezy armhf create --mirror http://archive.raspbian.org/raspbian --debootstrapopts --keyring=/home/jeremy/rpi/etc/apt/trusted.gpg
+#!/bin/bash
+
+keyring=/home/ubuntu/rpi/keyring/raspbian.gpg
+
+wget https://archive.raspbian.org/raspbian.public.key -O - | sudo apt-key --keyring $keyring add -
+pbuilder-dist wheezy armhf create --release-only --mirror http://archive.raspbian.org/raspbian --debootstrapopts --keyring=$keyring
